@@ -6,20 +6,18 @@ import ChatItem from "../components/chat/ChatItem";
 import { IoMdSend } from "react-icons/io";
 import { useNavigate } from "react-router-dom";
 import {
+  ChatData,
   deleteUserChats,
   getUserChats,
   sendChatRequest,
 } from "../helpers/api-communicator";
 import toast from "react-hot-toast";
-type Message = {
-  role: "user" | "assistant";
-  content: string;
-};
+
 const Chat = () => {
   const navigate = useNavigate();
   const inputRef = useRef<HTMLInputElement | null>(null);
   const auth = useAuth();
-  const [chatMessages, setChatMessages] = useState<Message[]>([]);
+  const [chatMessages, setChatMessages] = useState<ChatData[]>([]);
   const handleKeyPress = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === "Enter") {
       event.preventDefault();
@@ -31,16 +29,17 @@ const Chat = () => {
     if (inputRef && inputRef.current) {
       inputRef.current.value = "";
     }
-    const newMessage: Message = { role: "user", content };
+    const newMessage: ChatData = { role: "user", content };
     setChatMessages((prev) => [...prev, newMessage]);
     const chatData = await sendChatRequest(content);
-    setChatMessages([...chatData.chats]);
+    setChatMessages((prev) => [...prev, chatData]);
     //
   };
   const handleDeleteChats = async () => {
     try {
       toast.loading("Deleting Chats", { id: "deletechats" });
-      await deleteUserChats();
+      if(auth?.user)
+        await deleteUserChats(auth?.user?.email);
       setChatMessages([]);
       toast.success("Deleted Chats Successfully", { id: "deletechats" });
     } catch (error) {
@@ -51,9 +50,10 @@ const Chat = () => {
   useLayoutEffect(() => {
     if (auth?.isLoggedIn && auth.user) {
       toast.loading("Loading Chats", { id: "loadchats" });
-      getUserChats()
+      getUserChats(auth.user.email)
         .then((data) => {
-          setChatMessages([...data.chats]);
+          // console.log(data)
+          setChatMessages([...data]);
           toast.success("Successfully loaded chats", { id: "loadchats" });
         })
         .catch((err) => {
@@ -105,8 +105,8 @@ const Chat = () => {
               fontWeight: 700,
             }}
           >
-            {auth?.user?.name[0]}
-            {auth?.user?.name.split(" ")[1]}
+            {auth?.user?.name}
+            {auth?.user?.name}
           </Avatar>
           <Typography sx={{ mx: "auto", fontFamily: "work sans" }}>
             You are talking to a ChatBOT
@@ -151,7 +151,7 @@ const Chat = () => {
             fontWeight: "600",
           }}
         >
-          Support by GPT 3.5
+          Model - GPT 3.5 Turbo
         </Typography>
         <Box
           sx={{

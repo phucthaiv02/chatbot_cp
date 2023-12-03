@@ -20,7 +20,7 @@ const Home = () => {
         <Box>
         {/* <p style={{ fontSize: "60px", textAlign: "center", padding: "20px" }}> */}
         <span style={{ fontSize: "40px", textAlign: "center", padding: "20px" }}>
-          Welcome to my CHATBOT
+          Welcome to our CHATBOT
         </span>
         {/* </p> */}
         </Box>
@@ -51,9 +51,8 @@ const Home = () => {
             }}
           />
           <img
-            className="image-inverted rotate"
+            className="image-inverted"
             src="openai.png"
-            alt="openai"
             style={{ width: "200px", margin: "auto" }}
           />
         </Box>

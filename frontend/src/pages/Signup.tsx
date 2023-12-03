@@ -14,9 +14,10 @@ const Signup = () => {
     const name = formData.get("name") as string;
     const email = formData.get("email") as string;
     const password = formData.get("password") as string;
+    const confirmPassword = formData.get("confirmPassword") as string;
     try {
       toast.loading("Signing Up", { id: "signup" });
-      await auth?.signup(name, email, password);
+      await auth?.signup(name, email, password, confirmPassword);
       toast.success("Signed Up Successfully", { id: "signup" });
     } catch (error) {
       console.log(error);
@@ -70,6 +71,7 @@ const Signup = () => {
             <CustomizedInput type="text" name="name" label="Name" />
             <CustomizedInput type="email" name="email" label="Email" />
             <CustomizedInput type="password" name="password" label="Password" />
+            <CustomizedInput type="password" name="confirmPassword" label="Confirm password" />
             <Button
               type="submit"
               sx={{

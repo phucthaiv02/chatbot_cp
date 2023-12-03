@@ -20,7 +20,7 @@ type UserAuth = {
   isLoggedIn: boolean;
   user: User | null;
   login: (email: string, password: string) => Promise<void>;
-  signup: (name: string, email: string, password: string) => Promise<void>;
+  signup: (name: string, email: string, password: string, confirmPassword: string) => Promise<void>;
   logout: () => Promise<void>;
 };
 const AuthContext = createContext<UserAuth | null>(null);
@@ -41,24 +41,25 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     checkStatus();
   }, []);
   const login = async (email: string, password: string) => {
-    const data = await loginUser(email, password);
-    if (data) {
-      setUser({ email: data.email, name: data.name });
+    const userInfo = await loginUser(email, password);
+    if (userInfo) {
+      setUser({ email: userInfo.email, name: userInfo.name });
       setIsLoggedIn(true);
     }
   };
-  const signup = async (name: string, email: string, password: string) => {
-    const data = await signupUser(name, email, password);
-    if (data) {
-      setUser({ email: data.email, name: data.name });
+  const signup = async (name: string, email: string, password: string, confirmPassword: string) => {
+    const userInfo = await signupUser(name, email, password, confirmPassword);
+    if (userInfo) {
+      setUser({ email: userInfo.email, name: userInfo.name });
       setIsLoggedIn(true);
     }
   };
+
   const logout = async () => {
-    await logoutUser();
+    if(user)
+      await logoutUser(user?.email);
     setIsLoggedIn(false);
     setUser(null);
-    window.location.reload();
   };
 
   const value = {
