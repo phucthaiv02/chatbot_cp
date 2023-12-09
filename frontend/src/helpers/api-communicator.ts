@@ -35,7 +35,7 @@ export interface SignUpResponse {
   message: string;
 }
 
-const socket = io("http://127.0.0.1:6968/")
+const socket = io("http://localhost:6968")
 export const loginUser = async (email: string, password: string) => {
   // const res = await axios.post("/user/login", { email, password });
   socket.emit("login", {"email": email, "password": password});
@@ -59,7 +59,6 @@ export const signupUser = async (
   password: string,
   confirmPassword: string
 ) => {
-  // const res = await axios.post("/user/signup", { name, email, password });
   socket.emit("signup", {"name": name, "email": email, "password": password, "confirmPassword": confirmPassword});
 
   const res: LoginResponse = await new Promise((resolve) => {
@@ -95,9 +94,8 @@ export const checkAuthStatus = async () => {
   return data;
 };
 
-export const sendChatRequest = async (message: string) => {
-  // const res = await axios.post("/chat/new", { message });
-  socket.emit("chat", {"message": message});
+export const sendChatRequest = async (email: string, message: ChatData) => {
+  socket.emit("chat", {"userInfo": email, "message": message});
 
   const res: ChatResponse = await new Promise((resolve) => {
     socket.on("chat-response", (response) => {
@@ -114,8 +112,6 @@ export const sendChatRequest = async (message: string) => {
 };
 
 export const getUserChats = async (email: string) => {
-  // const res = await axios.get("/chat/all-chats");
-
   socket.emit('all-chats', {'userInfo': email})
   const response: AllChatResponse = await new Promise((resolve) => {
     socket.on("all-chats-response", (response) => {
@@ -132,7 +128,6 @@ export const getUserChats = async (email: string) => {
 };
 
 export const deleteUserChats = async (email: string) => {
-  // const res = await axios.delete("/chat/delete");
   socket.emit('delete-chat', {'userInfo': email})
   const response: Response = await new Promise((resolve) => {
     socket.on("delete-chat-response", (response) => {

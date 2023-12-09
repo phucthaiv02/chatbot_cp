@@ -29,11 +29,13 @@ const Chat = () => {
     if (inputRef && inputRef.current) {
       inputRef.current.value = "";
     }
-    const newMessage: ChatData = { role: "user", content };
-    setChatMessages((prev) => [...prev, newMessage]);
-    const chatData = await sendChatRequest(content);
-    setChatMessages((prev) => [...prev, chatData]);
-    //
+    if(auth?.user)
+    {
+      const newMessage: ChatData = { role: "user", content: content };
+      setChatMessages((prev) => [...prev, newMessage]);
+      const chatData = await sendChatRequest(auth?.user?.email, newMessage);
+      setChatMessages((prev) => [...prev, chatData]);
+    }
   };
   const handleDeleteChats = async () => {
     try {
@@ -151,7 +153,7 @@ const Chat = () => {
             fontWeight: "600",
           }}
         >
-          Model - GPT 3.5 Turbo
+          Burn with us
         </Typography>
         <Box
           sx={{

@@ -9,29 +9,22 @@ from pymongo.server_api import ServerApi
 from flask import Flask, render_template, session, request, copy_current_request_context
 from flask_socketio import SocketIO
 
-from transformers import pipeline
-model_checkpoint = "nguyenvulebinh/vi-mrc-base"
-nlp = pipeline('question-answering', model=model_checkpoint,
-               tokenizer=model_checkpoint, device="cuda:0")
-
-context = '''
-Đại học Bách Khoa Đà Nẵng được đánh giá nằm trong TOP 4 trường Đại học Việt Nam lần đầu tiên đạt chuẩn quốc tế về chất lượng đào tạo và nghiên cứu được ghi nhận do Hội đồng cấp cao đánh giá nghiên cứu và giáo dục đại học Châu Âu. Những năm gần đây, DUT đào tạo ra không ít  kỹ sư, cán bộ tài năng, gương mẫu cho tổ quốc.
-Trường Đại học Bách khoa - Đại học Đà Nẵng công bố điểm chuẩn trúng tuyển có điều kiện theo phương thức xét tuyển học bạ.
-
-Nhà trường lưu ý, thí sinh cần đăng ký ngành/chuyên ngành với tổ hợp trúng tuyển có điều kiện ở trên vào Hệ thống tuyển sinh của Bộ Giáo dục và Đào tạo để được xét trúng tuyển chính thức.
-
-Thí sinh chỉ trúng tuyển chính thức khi có đồng thời 3 điều kiện sau:
-
-Điều kiện 1: Tốt nghiệp THPT.
-
-Điều kiện 2: Đăng ký ngành/chuyên ngành với tổ hợp trúng tuyển có điều kiện ở trên vào Hệ thống.
-
-Điều kiện 3: Ngành/chuyên ngành trúng tuyển có điều kiện ở trên là nguyện vọng cao nhất trong số các nguyện vọng đủ điều kiện trúng tuyển thí sinh đã đăng ký vào Hệ thống.
+import openai
 
 
-'''
+def chat_response(message):
+    response = openai.Completion.create(
+        engine="text-davinci-002",
+        prompt=message,
+        max_tokens=150,
+        n=1,
+        stop=None
+    )
+    return response['choices'][0]['text']
+
 
 load_dotenv()
+openai.api_key = os.getenv("OPEN_AI_SECRET")
 
 app = Flask(__name__)
 socket = SocketIO(app, cors_allowed_origins='*', async_mode="threading")
@@ -129,9 +122,6 @@ def signup(data):
 def allChat(data):
     user = db.find_one({'email': data['userInfo']})
     chats = user['chats']
-    for chat in chats:
-        chat.pop('id')
-        chat.pop('_id')
 
     response = {
         'status': 200,
@@ -143,12 +133,13 @@ def allChat(data):
 @socket.on("chat")
 def chat(data):
     question = data["message"]
-    QA_input = {
-        'question': f"{question}?",
-        'context': f"{context}"
-    }
-    res = nlp(QA_input)
-    ans = {'role': 'assistant', 'content': res["answer"]}
+
+    res = chat_response(question['content'])
+    ans = {'role': 'assistant', 'content': res}
+
+    db.update_one({'email': data['userInfo']}, {"$push": {"chats": question}})
+    db.update_one({'email': data['userInfo']}, {"$push": {"chats": ans}})
+
     response = {
         "status": 200,
         "response": ans
