@@ -8,13 +8,16 @@ interface Chat {
 
 interface Category {
   category: string;
-  conservation: Chat[];
+  conversation: Chat[];
 }
 
 interface User extends Document {
   name: string;
   email: string;
   password: string;
+  role: string;
+  numChat: Number;
+  numCat: Number;
   chats: Category[];
 }
 
@@ -38,7 +41,7 @@ const categorySchema = new mongoose.Schema<Category>({
     type: String,
     required: true,
   },
-  conservation: [chatSchema],
+  conversation: [chatSchema],
 });
 
 const userSchema = new mongoose.Schema<User>({
@@ -54,6 +57,18 @@ const userSchema = new mongoose.Schema<User>({
   password: {
     type: String,
     required: true,
+  },
+  role: {
+    type: String,
+    required: true,
+  },
+  numChat: {
+    type: Number,
+    default: 0,
+  },
+  numCat: {
+    type: Number,
+    default: 0,
   },
   chats: [categorySchema],
 });

@@ -16,22 +16,24 @@ export const generateChatCompletion = async (
 
     let category = user.chats.find((c) => c.category === categoryName);
     if (!category) {
-      category = {
+      const newCategory = {
         category: categoryName,
-        conservation: [],
+        conversation: [],
       };
-      user.chats.push(category);
+      await User.updateOne({_id: user._id}, { $inc: { numCat: 1 } });
+      user.chats.push(newCategory);
     }
-    category.conservation.push({
+    category = user.chats.find((c) => c.category === categoryName);
+    category.conversation.push({
       content: message,
       role: "user",
       created: new Date(),
     })
-    
+    await User.updateOne({_id: user._id}, { $inc: { numChat: 1 } });
     // Get response message
     const chatResponse = message
 
-    category.conservation.push({
+    category.conversation.push({
       content: chatResponse,
       role: "bot",
       created: new Date(),
@@ -65,10 +67,10 @@ export const sendChatsToUser = async (
     if (!category) {
       category = {
         category: categoryName,
-        conservation: [],
+        conversation: [],
       };
     }
-    return res.status(200).json({chats: category.conservation });
+    return res.status(200).json({chats: category.conversation });
   } catch (error) {
     console.log(error);
     return res.status(200).json({cause: error.message });

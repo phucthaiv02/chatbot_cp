@@ -26,11 +26,11 @@ export const userSignup = async (
 ) => {
   try {
     //user signup
-    const { name, email, password } = req.body;
+    const { name, email, password, role } = req.body;
     const existingUser = await User.findOne({ email });
     if (existingUser) return res.status(401).send("User already registered");
     const hashedPassword = await hash(password, 10);
-    const user = new User({ name, email, password: hashedPassword });
+    const user = new User({ name, email, password: hashedPassword, role, numCat: 0, numChat: 0});
     await user.save();
 
     // create token and store cookie
@@ -54,7 +54,7 @@ export const userSignup = async (
 
     return res
       .status(201)
-      .json({ message: "OK", name: user.name, email: user.email });
+      .json({ message: "OK", name: user.name, email: user.email, role: user.role });
   } catch (error) {
     console.log(error);
     return res.status(200).json({ message: "ERROR", cause: error.message });
@@ -100,7 +100,7 @@ export const userLogin = async (
 
     return res
       .status(200)
-      .json({ message: "OK", name: user.name, email: user.email });
+      .json({ message: "OK", name: user.name, email: user.email, role: user.role });
   } catch (error) {
     console.log(error);
     return res.status(200).json({ message: "ERROR", cause: error.message });
@@ -123,7 +123,7 @@ export const verifyUser = async (
     }
     return res
       .status(200)
-      .json({ message: "OK", name: user.name, email: user.email });
+      .json({ message: "OK", name: user.name, email: user.email, role: user.role });
   } catch (error) {
     console.log(error);
     return res.status(200).json({ message: "ERROR", cause: error.message });
@@ -154,7 +154,7 @@ export const userLogout = async (
 
     return res
       .status(200)
-      .json({ message: "OK", name: user.name, email: user.email });
+      .json({ message: "OK", name: user.name, email: user.email, role: user.role });
   } catch (error) {
     console.log(error);
     return res.status(200).json({ message: "ERROR", cause: error.message });

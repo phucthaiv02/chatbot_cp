@@ -34,7 +34,7 @@ export const AuthProvider = ({ children }) => {
     async function checkStatus() {
       try {
         const data = await checkAuthStatus();
-        setUser({ email: data.email, name: data.name });
+        setUser({ email: data.email, name: data.name, role: data.role });
         setIsLoggedIn(true);
       }
       catch(e) {
@@ -45,14 +45,14 @@ export const AuthProvider = ({ children }) => {
   const login = async (email, password) => {
     const userInfo = await loginUser(email, password);
     if (userInfo) {
-      setUser({ email: userInfo.email, name: userInfo.name });
+      setUser({ email: userInfo.email, name: userInfo.name, role: userInfo.role });
       setIsLoggedIn(true);
     }
   };
   const signup = async (name, email, password, confirmPassword) => {
     const userInfo = await signupUser(name, email, password, confirmPassword);
     if (userInfo) {
-      setUser({ email: userInfo.email, name: userInfo.name });
+      setUser({ email: userInfo.email, name: userInfo.name, role: userInfo.role });
       setIsLoggedIn(true);
     }
   };

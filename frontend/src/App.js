@@ -12,6 +12,7 @@ import List from './pages/List';
 import Alumni from './pages/Alumni';
 import System from './pages/System';
 import Link from './pages/Link';
+import Admin from './pages/Admin';
 
 function App() {
   return (
@@ -27,6 +28,7 @@ function App() {
         <Route path="/system" element={<System />}/>
         <Route path="/link" element={<Link />}/>
         <Route path="/support" element={<Support />}/>
+        <Route path="/admin" element={<Admin />}/>
       </Routes>
     </main>
   );

@@ -1,5 +1,7 @@
-import React from 'react';
+import React, { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Box } from '@mui/material';
+import { useAuth } from '../context/AuthContext';
 
 const data = [
     {
@@ -51,6 +53,15 @@ const data = [
 
 
 const Home = () => {
+    const auth = useAuth();
+    const navigate = useNavigate();
+    useEffect(() => {
+        if(auth?.user && auth.user.role === 'admin')
+        {
+            console.log(auth?.user.role);
+            return navigate('/admin');
+        }
+    })
     return (
         <div>
         <Box sx={{fontSize: 24, fontWeight: 600, alignItems: 'center', display: 'flex', justifyContent: 'center', padding: 2, borderBottom: 2}}>

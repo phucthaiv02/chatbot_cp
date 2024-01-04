@@ -1,4 +1,14 @@
 import axios from "axios";
+
+export const getAllUsers = async () => {
+  const res = await axios.get("/user");
+  if (res.status !== 200) {
+    throw new Error("Unable to send chat");
+  }
+  const data = await res.data;
+  return data;
+};
+
 export const loginUser = async (email, password) => {
   const res = await axios.post("/user/login", { email, password });
   if (res.status !== 200) {
@@ -58,6 +68,15 @@ export const logoutUser = async () => {
   const res = await axios.get("/user/logout");
   if (res.status !== 200) {
     throw new Error("Unable to delete chats");
+  }
+  const data = await res.data;
+  return data;
+};
+
+export const getAllCategory= async () => {
+  const res = await axios.post("/categories");
+  if (res.status !== 200) {
+    throw new Error("Unable to send chat");
   }
   const data = await res.data;
   return data;
