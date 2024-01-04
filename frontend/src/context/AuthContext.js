@@ -49,13 +49,13 @@ export const AuthProvider = ({ children }) => {
       setIsLoggedIn(true);
     }
   };
-  const signup = async (name, email, password, confirmPassword) => {
-    const userInfo = await signupUser(name, email, password, confirmPassword);
-    if (userInfo) {
-      setUser({ email: userInfo.email, name: userInfo.name, role: userInfo.role });
-      setIsLoggedIn(true);
-    }
-  };
+  // const signup = async (name, email, password, confirmPassword) => {
+  //   const userInfo = await signupUser(name, email, password, confirmPassword);
+  //   if (userInfo) {
+  //     setUser({ email: userInfo.email, name: userInfo.name, role: userInfo.role });
+  //     setIsLoggedIn(true);
+  //   }
+  // };
 
   const logout = async () => {
     if(user)
@@ -69,7 +69,7 @@ export const AuthProvider = ({ children }) => {
     isLoggedIn,
     login,
     logout,
-    signup,
+    // signup,
   };
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };

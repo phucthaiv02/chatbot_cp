@@ -1,65 +1,6 @@
-// import React, { useLayoutEffect, useState } from 'react';
-// import { useNavigate } from 'react-router-dom';
-// import { useAuth } from '../context/AuthContext';
-// import { getUserChats } from '../helpers/api-communicator';
-
-// const Support = () => {
-//     const auth = useAuth();
-//     const navigate = useNavigate();
-//     const [category, setCategory] = useState("");
-//     const [messages, setMessages] = useState([]);
-//     const [newMessage, setNewMessage] = useState("");
-
-
-//     useLayoutEffect(() => {
-//         if (auth?.isLoggedIn && auth.user) {
-//           getUserChats()
-//             .then((data) => {
-//               setMessages([...data.chats]);
-//             })
-//             .catch((err) => {
-//               console.log(err);
-//             });
-//         }
-//       }, [auth]);
-
-//     return (
-//         <div>
-//             {auth?.user ? (
-//                 <div className="chat-container">
-//                 <div className="chat-box">
-//                   {messages.map((message, index) => (
-//                     <div key={index} className={`message ${message.sender}`}>
-//                       {message.text}
-//                     </div>
-//                   ))}
-//                 </div>
-//                 <div className="input-box">
-//                   <input
-//                     type="text"
-//                     placeholder="Nhập tin nhắn..."
-//                     value={newMessage}
-//                     onChange={(e) => setNewMessage(e.target.value)}
-//                   />
-//                   <button>Gửi</button>
-//                 </div>
-//               </div>
-//             ):(
-//                 <div>
-//                   Vui lòng đăng nhập để sử dụng tính năng này
-//                   <button onClick={() => navigate('/login')}>Đăng nhập</button>
-//                 </div>
-                
-//             )}
-//         </div>
-//     )
-// };
-
-// export default Support;
-
 import  React, {useLayoutEffect, useEffect, useState, useRef} from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getUserChats, sendChatRequest } from '../helpers/api-communicator';
+import { getAllCategory, getUserChats, sendChatRequest } from '../helpers/api-communicator';
 import Message from '../components/Message';
 import {useAuth} from '../context/AuthContext';
 import './Support.css'
@@ -102,19 +43,12 @@ function a11yProps(index) {
   };
 }
 
-const Categories = [
-  "Chương trình đào tạo",
-  "Đánh giá học tập",
-  "Đánh giá rèn luyện",
-  "Học bổng",
-  "Hệ thống học trực tuyến",
-  "Chuẩn đầu ra",
-]
-
 export default function VerticalTabs() {
   const [value, setValue] = useState(0);
   const [chats, setChats] = useState([]);
   const [input, setInput] = useState("");
+  const [Categories, setCategories] = useState([]);
+
   const chatContainerRef = useRef(null);
   const auth = useAuth();
   const navigate = useNavigate();
@@ -124,23 +58,27 @@ export default function VerticalTabs() {
     if (input.trim() !== "") {
       const newMessage = { role: "user", content: input };
       setChats((prev) => [...prev, newMessage]);
-      const chatData = await sendChatRequest(Categories[value], input);
-      setChats((prev) => [...prev, chatData]);
       setInput("")
+      const chatData = await sendChatRequest(Categories[value].name, input);
+      setChats((prev) => [...prev, chatData]);
     }
   };
 
   useLayoutEffect(() => {
-    getUserChats(Categories[value])
-      .then((data) =>  setChats(data.chats))
-      .catch((e) => console.log(e));
-  }, [value]);
+    getAllCategory().then((categories) =>{
+      getUserChats(categories[value].name)
+        .then((data) =>  setChats(data.chats))
+        .catch((e) => console.log(e));
+      setCategories(categories);
+    }
+    );
+  }, [auth]);
 
   useEffect(() => {
     if (chatContainerRef.current) {
       chatContainerRef.current.scrollIntoView({ behavior: 'smooth', block: 'end' });
     }
-  }, [chats]);
+  }, [value, chats]);
 
   const handleChange = (e, newValue) => {
     e.preventDefault();
@@ -166,8 +104,8 @@ export default function VerticalTabs() {
               aria-label="Vertical tabs example"
               sx={{ borderRight: 1, borderColor: 'divider' }}
               >
-              {Categories.map((value, index) => (
-                <Tab label={value} {...a11yProps(index)} />
+              {Categories.map((category, index) => (
+                <Tab label={category.name} {...a11yProps(index)} />
                 ))}
             </Tabs>
             <TabPanel value={value} index={value} className="tab-panel">

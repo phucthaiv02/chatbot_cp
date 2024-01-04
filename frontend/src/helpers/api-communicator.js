@@ -18,10 +18,19 @@ export const loginUser = async (email, password) => {
   return data;
 };
 
-export const signupUser = async (name, email, password) => {
-  const res = await axios.post("/user/signup", { name, email, password });
+export const signupUser = async (name, email, password, role) => {
+  const res = await axios.post("/user/signup", { name, email, password, role });
   if (res.status !== 201) {
     throw new Error("Unable to Signup");
+  }
+  const data = await res.data;
+  return data;
+};
+
+export const deleteUser = async (email) => {
+  const res = await axios.delete(`/user/delete/${email}`);
+  if (res.status !== 200) {
+    throw new Error("Unable to delete user");
   }
   const data = await res.data;
   return data;
@@ -49,7 +58,7 @@ export const sendChatRequest = async (categoryName, message) => {
 export const getUserChats = async (categoryName) => {
   const res = await axios.post("/chat/all-chats", {categoryName});
   if (res.status !== 200) {
-    throw new Error("Unable to send chat");
+    throw new Error("Unable to get chats");
   }
   const data = await res.data;
   return data;
@@ -67,16 +76,34 @@ export const deleteUserChats = async () => {
 export const logoutUser = async () => {
   const res = await axios.get("/user/logout");
   if (res.status !== 200) {
-    throw new Error("Unable to delete chats");
+    throw new Error("Unable to log out");
   }
   const data = await res.data;
   return data;
 };
 
-export const getAllCategory= async () => {
-  const res = await axios.post("/categories");
+export const addCategory = async (name) => {
+  const res = await axios.post("/category/new", {name: name});
   if (res.status !== 200) {
-    throw new Error("Unable to send chat");
+    throw new Error("Unable to create category");
+  }
+  const data = await res.data;
+  return data;
+};
+
+export const deleteCategory = async (name) => {
+  const res = await axios.delete(`/category/delete/${name}`);
+  if (res.status !== 200) {
+    throw new Error("Unable to delete category");
+  }
+  const data = await res.data;
+  return data;
+};
+
+export const getAllCategory = async () => {
+  const res = await axios.get("/category/all-categories");
+  if (res.status !== 200) {
+    throw new Error("Unable to get categpries");
   }
   const data = await res.data;
   return data;

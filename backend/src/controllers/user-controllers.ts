@@ -33,28 +33,28 @@ export const userSignup = async (
     const user = new User({ name, email, password: hashedPassword, role, numCat: 0, numChat: 0});
     await user.save();
 
-    // create token and store cookie
-    res.clearCookie(COOKIE_NAME, {
-      httpOnly: true,
-      domain: "localhost",
-      signed: true,
-      path: "/",
-    });
+    // // create token and store cookie
+    // res.clearCookie(COOKIE_NAME, {
+    //   httpOnly: true,
+    //   domain: "localhost",
+    //   signed: true,
+    //   path: "/",
+    // });
 
-    const token = createToken(user._id.toString(), user.email, "7d");
-    const expires = new Date();
-    expires.setDate(expires.getDate() + 7);
-    res.cookie(COOKIE_NAME, token, {
-      path: "/",
-      domain: "localhost",
-      expires,
-      httpOnly: true,
-      signed: true,
-    });
+    // const token = createToken(user._id.toString(), user.email, "7d");
+    // const expires = new Date();
+    // expires.setDate(expires.getDate() + 7);
+    // res.cookie(COOKIE_NAME, token, {
+    //   path: "/",
+    //   domain: "localhost",
+    //   expires,
+    //   httpOnly: true,
+    //   signed: true,
+    // });
 
     return res
       .status(201)
-      .json({ message: "OK", name: user.name, email: user.email, role: user.role });
+      .json({ message: "OK", user });
   } catch (error) {
     console.log(error);
     return res.status(200).json({ message: "ERROR", cause: error.message });
@@ -158,5 +158,22 @@ export const userLogout = async (
   } catch (error) {
     console.log(error);
     return res.status(200).json({ message: "ERROR", cause: error.message });
+  }
+};
+
+export const deleteUser = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { email } = req.params;
+    const deletedUser = await User.findOneAndDelete({ email });
+
+    if (!deletedUser) {
+      res.status(404).json({ error: "User not found" });
+      return;
+    }
+
+    const users = await User.find();
+    res.status(200).json({ message: "OK", users });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
   }
 };

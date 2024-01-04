@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { Box } from '@mui/material';
+import { toast } from "react-hot-toast";
 import './Login.css';
 
 const Login = () => {
@@ -12,7 +13,13 @@ const Login = () => {
 
     const handleLogin = async (event) => {
         event.preventDefault();
-        await auth?.login(email, password);
+        try {
+            await auth?.login(email, password);
+            toast.success("Đăng nhập thành công", { id: "login" });
+        }
+        catch(e){
+            toast.error("Đăng nhập thất bại", { id: "login" });
+        } 
     };
     
     useEffect(() => {

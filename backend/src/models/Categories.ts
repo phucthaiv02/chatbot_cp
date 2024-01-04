@@ -5,7 +5,11 @@ const categorySchema = new mongoose.Schema({
       type: String,
       required: true,
     },
-    count: {
+    userCount: {
+      type: Number,
+      default: 0,
+    },
+    messageCount: {
         type: Number,
         default: 0,
     }

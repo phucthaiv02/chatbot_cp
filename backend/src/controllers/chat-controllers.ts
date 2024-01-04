@@ -1,5 +1,8 @@
 import { NextFunction, Request, Response } from "express";
 import User from "../models/User.js";
+import Category from "../models/Categories.js";
+
+import axios from 'axios';
 
 export const generateChatCompletion = async (
   req: Request,
@@ -10,12 +13,14 @@ export const generateChatCompletion = async (
   try {
     const user = await User.findById(res.locals.jwtData.id);
     if (!user)
-      return res
-        .status(401)
-        .json({ message: "User not registered OR Token malfunctioned" });
-
-    let category = user.chats.find((c) => c.category === categoryName);
-    if (!category) {
+    return res
+  .status(401)
+  .json({ message: "User not registered OR Token malfunctioned" });
+  
+  let category = user.chats.find((c) => c.category === categoryName);
+  if (!category) {
+      // add user count 
+      await Category.updateOne({ name: categoryName }, { $inc: { userCount: 1 } })
       const newCategory = {
         category: categoryName,
         conversation: [],
@@ -28,10 +33,14 @@ export const generateChatCompletion = async (
       content: message,
       role: "user",
       created: new Date(),
-    })
+    });
+
+    await Category.updateOne({ name: categoryName }, { $inc: { messageCount: 1 } })
     await User.updateOne({_id: user._id}, { $inc: { numChat: 1 } });
     // Get response message
-    const chatResponse = message
+    const response = await axios.post('https://parakeet-ace-smoothly.ngrok-free.app/chat', {"message": message});
+    console.log(response.data.ans_vi);
+    const chatResponse = response.data.ans_vi;
 
     category.conversation.push({
       content: chatResponse,
